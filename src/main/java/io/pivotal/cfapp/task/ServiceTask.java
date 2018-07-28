@@ -9,61 +9,29 @@ import org.cloudfoundry.operations.services.GetServiceInstanceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
 import io.pivotal.cfapp.domain.ServiceDetail;
 import io.pivotal.cfapp.domain.ServiceRequest;
-import io.pivotal.cfapp.repository.ServiceDetailAggregator;
-import io.pivotal.cfapp.repository.ReactiveServiceInfoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Component
-public class ServiceTask implements ApplicationRunner {
+public abstract class ServiceTask implements ApplicationRunner {
     
     private DefaultCloudFoundryOperations opsClient;
-    private ApplicationEventPublisher applicationEventPublisher;
-    private ReactiveServiceInfoRepository reactiveServiceInfoRepository;
-    private ServiceDetailAggregator serviceDetailAggregator;
     
     @Autowired
-    public ServiceTask(
-            DefaultCloudFoundryOperations opsClient,
-            ApplicationEventPublisher applicationEventPublisher,
-            ReactiveServiceInfoRepository reactiveServiceInfoRepository,
-            ServiceDetailAggregator serviceDetailAggregator
-            ) {
+    public ServiceTask(DefaultCloudFoundryOperations opsClient) {
         this.opsClient = opsClient;
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.reactiveServiceInfoRepository = reactiveServiceInfoRepository;
-        this.serviceDetailAggregator = serviceDetailAggregator;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        reactiveServiceInfoRepository
-            .deleteAll()
-            .thenMany(getOrganizations())
-            .flatMap(spaceRequest -> getSpaces(spaceRequest))
-            .flatMap(serviceSummaryRequest -> getServiceSummary(serviceSummaryRequest))
-            .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
-            .flatMap(reactiveServiceInfoRepository::save)
-            .thenMany(reactiveServiceInfoRepository.findAll())
-            .collectList()
-            .subscribe(r -> 
-                applicationEventPublisher.publishEvent(
-                    new ServiceInfoRetrievedEvent(
-                            this, 
-                            r, 
-                            serviceDetailAggregator.countServicesByType(),
-                            serviceDetailAggregator.countServicesByOrganization()
-                    )
-                )
-            );
+    	runTask();
     }
+    
+    protected abstract void runTask();
 
-    private Flux<ServiceRequest> getOrganizations() {
+    protected Flux<ServiceRequest> getOrganizations() {
         return DefaultCloudFoundryOperations.builder()
             .from(opsClient)
             .build()
@@ -73,7 +41,7 @@ public class ServiceTask implements ApplicationRunner {
                     .log();
     }
     
-    private Flux<ServiceRequest> getSpaces(ServiceRequest request) {
+    protected Flux<ServiceRequest> getSpaces(ServiceRequest request) {
         return DefaultCloudFoundryOperations.builder()
             .from(opsClient)
             .organization(request.getOrganization())
@@ -84,7 +52,7 @@ public class ServiceTask implements ApplicationRunner {
                     .log();
     }
     
-    private Flux<ServiceRequest> getServiceSummary(ServiceRequest request) {
+    protected Flux<ServiceRequest> getServiceSummary(ServiceRequest request) {
         return DefaultCloudFoundryOperations.builder()
             .from(opsClient)
             .organization(request.getOrganization())
@@ -96,7 +64,7 @@ public class ServiceTask implements ApplicationRunner {
                     .log();
     }
     
-    private Mono<ServiceDetail> getServiceDetail(ServiceRequest request) {
+    protected Mono<ServiceDetail> getServiceDetail(ServiceRequest request) {
          return DefaultCloudFoundryOperations.builder()
             .from(opsClient)
             .organization(request.getOrganization())
