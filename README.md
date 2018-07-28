@@ -30,15 +30,15 @@ git clone https://github.com/pacphi/cf-service-inventory-report.git
 
 Edit the contents of the `application.yml` file located in `src/main/resources`.  You will need to provide administrator credentials to services Manager for the foundation if you want to get a complete inventory of services. 
 
-> You really should not bundle configuration with the servicelication. To take some of the sting away, you might consider externalizing and encrypting this configuration.
+> You really should not bundle configuration with the application. To take some of the sting away, you might consider externalizing and encrypting this configuration.
 
 ### Minimum required keys
 
 At a minimum you should supply values for the following keys
 
-* `cf.apiHost` - a Pivotal servicelication Service API endpoint
-* `cf.username` - a Pivotal servicelication Service account username (typically an administrator account)
-* `cf.password` - a Pivotal servicelication Service account password
+* `cf.apiHost` - a Pivotal Application Service API endpoint
+* `cf.username` - a Pivotal Application Service account username (typically an administrator account)
+* `cf.password` - a Pivotal Application Service account password
 * `notification.engine` - email provider, options are: `none`, `java-mail` or `sendgrid`
 
 > If you set the email provider to `none`, then no email will be delivered
