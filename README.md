@@ -118,7 +118,7 @@ cf login -a https:// api.run.pivotal.io
 Push the app, but don't start it, also disable health check and routing.
 
 ```
-cf push get-service-details-task --no-route --health-check-type none -p ./build/libs/cf-service-inventory-report-0.0.1-SNAPSHOT.jar -m 1G --no-start
+cf push get-service-details-task --no-route --health-check-type none -p ./build/libs/cf-service-inventory-report-0.1-SNAPSHOT.jar -m 1G --no-start
 ```
 
 Set environment variable for backend
