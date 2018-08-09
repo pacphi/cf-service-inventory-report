@@ -2,6 +2,6 @@
 
 set -e
 
-cf delete-job get-service-details-scheduled-job
+cf delete-job get-service-inventory-scheduled-job
 cf delete-service scheduler-for-pcf
-cf delete get-service-details-task
+cf delete get-service-inventory-task
