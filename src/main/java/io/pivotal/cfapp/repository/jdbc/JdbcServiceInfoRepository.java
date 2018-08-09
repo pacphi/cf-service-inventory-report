@@ -45,7 +45,6 @@ public class JdbcServiceInfoRepository {
 		String selectOne = "select id, organization, space, name, service, plan, type, last_operation, last_updated, dashboard_url, requested_state from service_detail where id = ?";
 		Flowable<ServiceDetail> result = database
 			.select(selectOne)
-			.dependsOn(insert)
 			.parameterStream(insert)
 			.get(rs -> ServiceDetail
 						.builder()

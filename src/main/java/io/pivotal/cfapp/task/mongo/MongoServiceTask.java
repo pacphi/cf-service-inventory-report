@@ -41,7 +41,6 @@ public class MongoServiceTask extends ServiceTask {
             .flatMap(serviceSummaryRequest -> getServiceSummary(serviceSummaryRequest))
             .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
             .flatMap(reactiveServiceInfoRepository::save)
-            .thenMany(reactiveServiceInfoRepository.findAll())
             .collectList()
             .subscribe(r -> 
                 applicationEventPublisher.publishEvent(
