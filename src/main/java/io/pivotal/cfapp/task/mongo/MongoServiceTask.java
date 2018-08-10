@@ -4,6 +4,7 @@ import org.cloudfoundry.operations.DefaultCloudFoundryOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import io.pivotal.cfapp.repository.ServiceDetailAggregator;
@@ -33,6 +34,7 @@ public class MongoServiceTask extends ServiceTask {
     }
 
     @Override
+    @Scheduled(cron = "${cron}")
     protected void runTask() {
         reactiveServiceInfoRepository
             .deleteAll()
