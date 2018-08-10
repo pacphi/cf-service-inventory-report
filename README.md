@@ -91,6 +91,10 @@ would download the Mongo executable from `https://fastdl.mongodb.org/osx/mongodb
 
 > OS-specific sub-directory choices are: `linux`, `win32`, and `osx`. See [https://www.mongodb.com/download-center#community](https://www.mongodb.com/download-center#community) for more details.
 
+### to set the delivery Schedule
+
+Update the value of the `cron` property in `application.yml`.  Consult this [article](https://www.baeldung.com/spring-scheduled-tasks) and the [Javadoc](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/scheduling/annotation/Scheduled.html#cron--) to understand how to tune it for your purposes.
+
 ## How to Build
 
 ```
