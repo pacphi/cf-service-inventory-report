@@ -135,7 +135,7 @@ Start the app
 cf start get-service-details-task
 ```
 
-## How to run as a task on Pivotal servicelication Service
+## How to run as a task on Pivotal Application Service
 
 To run the task
 
@@ -150,7 +150,7 @@ cf logs get-service-details-task --recent
 ```
 
 
-## How to schedule the task on Pivotal servicelication Service
+## How to schedule the task on Pivotal Application Service
 
 Let's employ the [job scheduler](https://docs.pivotal.io/pcf-scheduler/1-1/using.html).
 
