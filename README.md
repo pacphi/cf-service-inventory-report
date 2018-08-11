@@ -1,5 +1,7 @@
 # Pivotal Application Service > Service Inventory Report
 
+[![Build Status](https://travis-ci.org/pacphi/cf-service-inventory-report.svg?branch=master)](https://travis-ci.org/pacphi/cf-service-inventory-report) [![Known Vulnerabilities](https://snyk.io/test/github/pacphi/cf-service-inventory-report/badge.svg)](https://snyk.io/test/github/pacphi/cf-service-inventory-report)
+
 This is a [Spring Cloud Task](http://cloud.spring.io/spring-cloud-task/) that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [H2](http://www.h2database.com/html/main.html) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  An email will be sent to recipient(s) with those reports attached. 
 
 ## Prerequisites
