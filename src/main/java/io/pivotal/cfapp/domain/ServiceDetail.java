@@ -28,6 +28,7 @@ public class ServiceDetail {
     private String space;
     private String name;
     private String service;
+    private String description;
     private String plan;
     private String type;
     private String lastOperation;
@@ -37,7 +38,7 @@ public class ServiceDetail {
     
     public static String headers() {
         return String.join(",", "organization", "space", 
-                "name", "service", "plan", "type", "last operation", "last updated", "dashboard url", "requested state");
+                "name", "service", "description", "plan", "type", "last operation", "last updated", "dashboard url", "requested state");
     }
     
     public static ServiceDetailBuilder from(ServiceDetail detail) {
@@ -47,6 +48,7 @@ public class ServiceDetail {
                             .space(detail.getSpace())
                             .name(detail.getName())
                             .service(detail.getService())
+                            .description(detail.getDescription())
                             .plan(detail.getPlan())
                             .type(detail.getType())
                             .lastOperation(detail.getLastOperation())
@@ -59,6 +61,7 @@ public class ServiceDetail {
         return String
                 .join(",", wrap(getOrganization()), wrap(getSpace()), 
                         wrap(getName()), wrap(getService()),
+                        wrap(getDescription()),
                         wrap(getPlan()), wrap(getType()), 
                         wrap(getLastOperation()), wrap(getDashboardUrl()), 
                         wrap(getLastUpdated() != null ? getLastUpdated().toString(): ""),

@@ -80,6 +80,7 @@ public abstract class ServiceTask implements ApplicationRunner {
                                     .name(request.getServiceName())
                                     .service(sd.getService())
                                     .plan(sd.getPlan())
+                                    .description(sd.getDescription())
                                     .type(sd.getType() !=null ? sd.getType().name().toLowerCase(): "")
                                     .lastOperation(sd.getLastOperation())
                                     .lastUpdated(StringUtils.isNotBlank(sd.getUpdatedAt()) ? Instant.parse(sd.getUpdatedAt())
