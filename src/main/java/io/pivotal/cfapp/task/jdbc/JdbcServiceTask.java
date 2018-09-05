@@ -1,6 +1,7 @@
 package io.pivotal.cfapp.task.jdbc;
 
 import org.cloudfoundry.operations.DefaultCloudFoundryOperations;
+import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
@@ -23,11 +24,12 @@ public class JdbcServiceTask extends ServiceTask {
     @Autowired
     public JdbcServiceTask(
             DefaultCloudFoundryOperations opsClient,
+            ReactorCloudFoundryClient cloudFoundryClient,
             ApplicationEventPublisher applicationEventPublisher,
             JdbcServiceInfoRepository reactiveServiceInfoRepository,
             ServiceDetailAggregator serviceDetailAggregator
             ) {
-        super(opsClient);
+        super(opsClient, cloudFoundryClient);
         this.applicationEventPublisher = applicationEventPublisher;
         this.reactiveServiceInfoRepository = reactiveServiceInfoRepository;
         this.serviceDetailAggregator = serviceDetailAggregator;
@@ -41,6 +43,8 @@ public class JdbcServiceTask extends ServiceTask {
             .thenMany(getOrganizations())
             .flatMap(spaceRequest -> getSpaces(spaceRequest))
             .flatMap(serviceSummaryRequest -> getServiceSummary(serviceSummaryRequest))
+            .flatMap(serviceBoundAppIdsRequest -> getServiceBoundApplicationIds(serviceBoundAppIdsRequest))
+            .flatMap(serviceBoundAppNamesRequest -> getServiceBoundApplicationNames(serviceBoundAppNamesRequest))
             .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
             .flatMap(reactiveServiceInfoRepository::save)
             .collectList()

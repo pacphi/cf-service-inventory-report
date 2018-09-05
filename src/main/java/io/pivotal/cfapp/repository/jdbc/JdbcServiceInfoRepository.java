@@ -24,7 +24,7 @@ public class JdbcServiceInfoRepository {
 	}
 	
 	public Mono<ServiceDetail> save(ServiceDetail entity) {
-		String createOne = "insert into service_detail (organization, space, name, service, description, plan, type, last_operation, last_updated, dashboard_url, requested_state) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String createOne = "insert into service_detail (organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		Flowable<Integer> insert = database
 			.update(createOne)
 			.parameters(
@@ -35,6 +35,7 @@ public class JdbcServiceInfoRepository {
 				entity.getDescription(),
 				entity.getPlan(),
 				entity.getType(),
+				entity.getApplications(),
 				entity.getLastOperation(),
 				entity.getLastUpdated() != null ? Timestamp.valueOf(entity.getLastUpdated()): null,
 				entity.getDashboardUrl(),
@@ -43,7 +44,7 @@ public class JdbcServiceInfoRepository {
 			.returnGeneratedKeys()
 			.getAs(Integer.class);
 		
-		String selectOne = "select id, organization, space, name, service, description, plan, type, last_operation, last_updated, dashboard_url, requested_state from service_detail where id = ?";
+		String selectOne = "select id, organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state from service_detail where id = ?";
 		Flowable<ServiceDetail> result = database
 			.select(selectOne)
 			.parameterStream(insert)
@@ -57,16 +58,17 @@ public class JdbcServiceInfoRepository {
 						.description(rs.getString(6))
 						.plan(rs.getString(7))
 						.type(rs.getString(8))
-						.lastOperation(rs.getString(9))
-						.lastUpdated(rs.getTimestamp(10) != null ? rs.getTimestamp(10).toLocalDateTime(): null)
-						.dashboardUrl(rs.getString(11))
-						.requestedState(rs.getString(12))
+						.applications(rs.getString(9))
+						.lastOperation(rs.getString(10))
+						.lastUpdated(rs.getTimestamp(11) != null ? rs.getTimestamp(11).toLocalDateTime(): null)
+						.dashboardUrl(rs.getString(12))
+						.requestedState(rs.getString(13))
 						.build());
 		return Mono.from(result);
 	}
 
 	public Flux<ServiceDetail> findAll() {
-		String selectAll = "select id, organization, space, name, service, description, plan, type, last_operation, last_updated, dashboard_url, requested_state from service_detail";
+		String selectAll = "select id, organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state from service_detail";
 		Flowable<ServiceDetail> result = database
 			.select(selectAll)
 			.get(rs -> ServiceDetail
@@ -79,10 +81,11 @@ public class JdbcServiceInfoRepository {
 						.description(rs.getString(6))
 						.plan(rs.getString(7))
 						.type(rs.getString(8))
-						.lastOperation(rs.getString(9))
-						.lastUpdated(rs.getTimestamp(10) != null ? rs.getTimestamp(10).toLocalDateTime(): null)
-						.dashboardUrl(rs.getString(11))
-						.requestedState(rs.getString(12))
+						.applications(rs.getString(9))
+						.lastOperation(rs.getString(10))
+						.lastUpdated(rs.getTimestamp(11) != null ? rs.getTimestamp(11).toLocalDateTime(): null)
+						.dashboardUrl(rs.getString(12))
+						.requestedState(rs.getString(13))
 						.build());
 		return Flux.from(result);
 	}

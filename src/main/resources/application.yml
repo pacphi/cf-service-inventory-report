@@ -93,11 +93,7 @@ spring:
     - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
     
   datasource:
-    url: jdbc:h2:mem:cf-service-inventory
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:mem:cf-service-inventory
     username: sa
     password:
-    driver-class-name: org.h2.Driver
-    
-  h2:
-    console:
-      enabled: true
