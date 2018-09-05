@@ -3,7 +3,6 @@ package io.pivotal.cfapp.domain;
 import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,8 +27,10 @@ public class ServiceDetail {
     private String space;
     private String name;
     private String service;
+    private String description;
     private String plan;
     private String type;
+    private String applications;
     private String lastOperation;
     private LocalDateTime lastUpdated;
     private String dashboardUrl;
@@ -37,7 +38,7 @@ public class ServiceDetail {
     
     public static String headers() {
         return String.join(",", "organization", "space", 
-                "name", "service", "plan", "type", "last operation", "last updated", "dashboard url", "requested state");
+                "name", "service", "description", "plan", "type", "bound applications", "last operation", "last updated", "dashboard url", "requested state");
     }
     
     public static ServiceDetailBuilder from(ServiceDetail detail) {
@@ -47,8 +48,10 @@ public class ServiceDetail {
                             .space(detail.getSpace())
                             .name(detail.getName())
                             .service(detail.getService())
+                            .description(detail.getDescription())
                             .plan(detail.getPlan())
                             .type(detail.getType())
+                            .applications(detail.getApplications())
                             .lastOperation(detail.getLastOperation())
                             .lastUpdated(detail.getLastUpdated())
                             .dashboardUrl(detail.getDashboardUrl())
@@ -59,10 +62,11 @@ public class ServiceDetail {
         return String
                 .join(",", wrap(getOrganization()), wrap(getSpace()), 
                         wrap(getName()), wrap(getService()),
-                        wrap(getPlan()), wrap(getType()), 
-                        wrap(getLastOperation()), wrap(getDashboardUrl()), 
+                        wrap(getDescription()),
+                        wrap(getPlan()), wrap(getType()), wrap(StringUtils.join(getApplications())),
+                        wrap(getLastOperation()), 
                         wrap(getLastUpdated() != null ? getLastUpdated().toString(): ""),
-                        wrap(getRequestedState()));
+                        wrap(getDashboardUrl()), wrap(getRequestedState()));
     }
     
     private String wrap(String value) {

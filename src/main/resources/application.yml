@@ -54,6 +54,16 @@ logging:
 # Options are: none, java-mail or sendgrid    
 notification:
   engine: none
+  
+# Set schedule for this task to adhere to
+# @see https://crontab.guru for help, first parameter is seconds
+cron: "0 0 8 * * 1"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health,metrics,scheduledtasks,loggers
 
 ---
 spring:
@@ -83,11 +93,7 @@ spring:
     - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
     
   datasource:
-    url: jdbc:h2:mem:cf-service-inventory
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:mem:cf-service-inventory
     username: sa
     password:
-    driver-class-name: org.h2.Driver
-    
-  h2:
-    console:
-      enabled: true

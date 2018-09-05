@@ -1,8 +1,8 @@
 # Pivotal Application Service > Service Inventory Report
 
-[![Build Status](https://travis-ci.org/pacphi/cf-service-inventory-report.svg?branch=master)](https://travis-ci.org/pacphi/cf-service-inventory-report) [![Known Vulnerabilities](https://snyk.io/test/github/pacphi/cf-service-inventory-report/badge.svg)](https://snyk.io/test/github/pacphi/cf-service-inventory-report)
+[![Build Status](https://travis-ci.org/pacphi/cf-service-inventory-report.svg?branch=app-deploy)](https://travis-ci.org/pacphi/cf-service-inventory-report) [![Known Vulnerabilities](https://snyk.io/test/github/pacphi/cf-service-inventory-report/badge.svg)](https://snyk.io/test/github/pacphi/cf-service-inventory-report)
 
-This is a [Spring Cloud Task](http://cloud.spring.io/spring-cloud-task/) that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [H2](http://www.h2database.com/html/main.html) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  An email will be sent to recipient(s) with those reports attached. 
+This is a Spring Boot application that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [HSQL](http://www.hsqldb.org) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  An email will be sent to recipient(s) with those reports attached. 
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ git clone https://github.com/pacphi/cf-service-inventory-report.git
 
 Edit the contents of the `application.yml` file located in `src/main/resources`.  You will need to provide administrator credentials to services Manager for the foundation if you want to get a complete inventory of services. 
 
-> You really should not bundle configuration with the application. To take some of the sting away, you might consider externalizing and encrypting this configuration.
+> You really should not bundle configuration with the application. To take some of the sting away, you might consider externalizing and [encrypting](https://blog.novatec-gmbh.de/encrypted-properties-spring/) this configuration.
 
 ### Minimum required keys
 
@@ -63,7 +63,7 @@ At a minimum you should supply values for the following keys
 
 Set `spring.profiles.active` to one of either `mongo` or `jdbc`.
 
-E.g., you could start the service with an H2 backend using
+E.g., you could start the service with an HSQL backend using
 
 ```
 ./gradlew bootRun -Dspring.profiles.active=jdbc
@@ -92,6 +92,10 @@ spring:
 would download the Mongo executable from `https://fastdl.mongodb.org/osx/mongodb-osx-x86_64-3.4.15.tgz` when the service is running on a Mac OSX host.
 
 > OS-specific sub-directory choices are: `linux`, `win32`, and `osx`. See [https://www.mongodb.com/download-center#community](https://www.mongodb.com/download-center#community) for more details.
+
+### to set the delivery Schedule
+
+Update the value of the `cron` property in `application.yml`.  Consult this [article](https://www.baeldung.com/spring-scheduled-tasks) and the [Javadoc](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/scheduling/annotation/Scheduled.html#cron--) to understand how to tune it for your purposes.
 
 ## How to Build
 
@@ -122,7 +126,7 @@ cf login -a https:// api.run.pivotal.io
 Push the app, but don't start it, also disable health check and routing.
 
 ```
-cf push get-service-inventory-task --no-route --health-check-type none -p ./build/libs/cf-service-inventory-report-0.1-SNAPSHOT.jar -m 1G --no-start
+cf push get-service-inventory-task -p ./build/libs/cf-service-inventory-report-0.1-SNAPSHOT.jar -m 1G --no-start
 ```
 
 Set environment variable for backend
@@ -138,58 +142,6 @@ Start the app
 ```
 cf start get-service-inventory-task
 ```
-
-## How to run as a task on Pivotal Application Service
-
-To run the task
-
-```
-cf run-task get-service-inventory-task ".java-buildpack/open_jdk_jre/bin/java org.springframework.boot.loader.JarLauncher"
-```
-
-To validate that the task ran successfully
-
-```
-cf logs get-service-inventory-task --recent
-```
-
-
-## How to schedule the task on Pivotal Application Service
-
-Let's employ the [job scheduler](https://docs.pivotal.io/pcf-scheduler/1-1/using.html).
-
-Create the service instance
-
-```
-cf create-service scheduler-for-pcf standard get-service-inventory-job
-```
-
-Bind the service instance to the task
-
-```
-cf bind-service get-service-inventory-task get-service-inventory-job
-```
-
-You'll need the Pivotal Application Service [job scheduler plugin for the cf CLI](https://network.pivotal.io/products/p-scheduler-for-pcf). Once the cf CLI plugin is installed, you can create jobs.
-
-```
-cf create-job get-service-inventory-task get-service-inventory-scheduled-job ".java-buildpack/open_jdk_jre/bin/java org.springframework.boot.loader.JarLauncher"
-```
-
-To execute the job
-
-```
-cf run-job get-service-inventory-scheduled-job
-```
-
-To adjust the schedule for the job using a CRON-like expression (`MIN` `HOUR` `DAY-OF-MONTH` `MONTH` `DAY-OF-WEEK`)
-
-```
-cf schedule-job get-service-inventory-scheduled-job "0 8 ? * * "
-```
-> Above example configures task to run daily at 8:00am
-
-Consult the [User Guide](https://docs.pivotal.io/pcf-scheduler/1-1/using-jobs.html) for other commands.
 
 ## What does the task do?
 
@@ -218,17 +170,34 @@ Please find attached service inventory detail and summary reports from api.run.p
 Sample `service-inventory-detail.csv`
 
 ```
-organization,space,name,service,plan,type,last operation,last updated,dashboard url,requested state
-"Northwest","sdeeg","help",,,"user_provided",,,,
-"zoo-labs","test","get-service-inventory-job","scheduler-for-pcf","standard","managed","create",,"2018-05-15T23:17:36","succeeded"
-"Northwest","wlund","cassandra",,,"user_provided",,,,
-"Northwest","mkillens","autoscale-mkillens","service-autoscaler","standard","managed","create",,"2018-04-25T19:26:35","succeeded"
-"Northwest","mkillens","myConfigServer","p-config-server","standard-legacy","managed","update","https://spring-cloud-service-broker.cfservices.io/dashboard/p-config-server/ae25bf5b-973c-4a61-b5f6-fb7b6566516a","2018-04-25T14:14:43","succeeded"
-"Northwest","mkillens","myMySqlService","cleardb","spark","managed","create","https://cloudfoundry.servicedirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=5786644c-cbe9-4f35-a4b2-b7184ce9d507","2018-03-14T12:17:35","succeeded"
-"Northwest","mkillens","myHystrixService","p-circuit-breaker-dashboard","standard-legacy","managed","create","https://spring-cloud-service-broker.cfservices.io/dashboard/p-circuit-breaker-dashboard/00ccc5b7-617e-4328-aed0-3ac6b57eab88","2018-03-16T14:11:32","succeeded"
-"Northwest","cphillipson","eureka-instance-prime","p-service-registry","standard-legacy","managed","create","https://spring-cloud-service-broker.cfservices.io/dashboard/p-service-registry/17ff265a-f17c-4263-9745-a8c10fe6aaa3","2017-06-19T15:47:54","succeeded"
-"Northwest","mkillens","myDiscoveryService","p-service-registry","standard-legacy","managed","create","https://spring-cloud-service-broker.cfservices.io/dashboard/p-service-registry/10b24822-e36e-4174-8206-fca4beb52232","2018-03-16T14:10:35","succeeded"
-"Northwest","cphillipson","config-server-instance-prime","p-config-server","standard-legacy","managed","update","https://spring-cloud-service-broker.cfservices.io/dashboard/p-config-server/3e9dcd90-f81a-4f5f-b9c9-9f2be57b8574","2017-06-20T13:12:54","succeeded"
+organization,space,name,service,plan,type,bound applications,last operation,last updated,dashboard url,requested state
+"Northwest","sdeeg","cfex-mysql",,,,"user_provided",,,,,
+"Northwest","nharris","scdf-mysql","cleardb","Highly available MySQL for your Apps.","spark","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=641f10e2-ef48-4634-ac41-e3d47a24fa54","2018-09-03T10:24:23","succeeded"
+"Northwest","nharris","scdf-rabbit","cloudamqp","Managed HA RabbitMQ servers in the cloud","lemur","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=1d252d74-dc4a-45c3-8443-033dd86bd85d","2018-09-03T10:24:11","succeeded"
+"Northwest","nharris","scdf-redis","rediscloud","Enterprise-Class Redis for Developers","30mb","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=3d3a5ece-8b0e-4155-bbbc-6d29d0a6e4ab","2018-09-03T10:24:04","succeeded"
+"Northwest","wlund","fortunes-db","cleardb","Highly available MySQL for your Apps.","spark","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=a2bb1310-adb7-4d52-b2ed-8a2e216c57ca","2016-12-07T13:54:50","succeeded"
+"Northwest","wlund","mysql","cleardb","Highly available MySQL for your Apps.","spark","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=20057992-46d9-4fcb-9e90-7ef0a79a7afc",,
+"Northwest","wlund","analytics-de0d73fa-22fb-498b-b10e-55b432d1bbf9","p-dataflow-analytics","Proxies to the Spring Cloud Data Flow analytics service instance","proxy","managed",,"create",,"2017-11-28T13:45:37","succeeded"
+"Northwest","wlund","messaging-de0d73fa-22fb-498b-b10e-55b432d1bbf9","p-dataflow-messaging","Proxies to the Spring Cloud Data Flow messaging service instance","proxy","managed",,"create",,"2017-11-28T13:45:37","succeeded"
+"Northwest","wlund","cf-workshop-mongo","mlab","Fully managed MongoDB-as-a-Service","sandbox","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=2f34c733-c2ca-45de-b125-ce8a6c30074a","2017-10-03T13:39:09","succeeded"
+"Northwest","wlund","dataflow-server","p-dataflow","Deploys Spring Cloud Data Flow servers to orchestrate data pipelines","standard","managed",,"create","https://p-dataflow.cfapps.io/instances/de0d73fa-22fb-498b-b10e-55b432d1bbf9/dashboard","2017-11-28T13:49:35","succeeded"
+"Northwest","wlund","redis","rediscloud","Enterprise-Class Redis for Developers","30mb","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=55a30313-8596-4e97-8fce-7ad93777eb40","2017-10-11T19:08:20","succeeded"
+"Northwest","wlund","relational-de0d73fa-22fb-498b-b10e-55b432d1bbf9","p-dataflow-relational","Proxies to the Spring Cloud Data Flow datastore service instance","proxy","managed",,"create",,"2017-11-28T13:45:37","succeeded"
+"Northwest","wlund","postgres","elephantsql","PostgreSQL as a Service","turtle","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=6c463f7f-04ec-4fdb-90e8-056fd437b621",,
+"Northwest","mkillens","autoscale-mkillens","app-autoscaler","Scales bound applications in response to load","standard","managed",,"create",,"2018-08-20T14:06:03","succeeded"
+"Northwest","dkobel","attendee-service-DevLab-CUP",,,,"user_provided","articulate-DevLab",,,,
+"Northwest","wlund","whocares","cleardb","Highly available MySQL for your Apps.","spark","managed",,"create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=8bc0070e-6c0a-4636-bebf-3a1c50c00609","2017-06-14T13:45:13","succeeded"
+"Northwest","sdeeg","vevent-rds",,,,"user_provided","vevent-smd",,,,
+"Northwest","mkillens","cuDirectTestConfiguration","p-config-server","Config Server for Spring Cloud Applications","trial","managed",,"create","https://spring-cloud-service-broker.cfapps.io/dashboard/p-config-server/571c792f-f102-4378-95e4-83ce26feb233","2018-08-28T15:48:15","succeeded"
+"Northwest","sdeeg","drupal-db",,,,"user_provided","drupal8",,,,
+"Northwest","bkamysz","my-db","elephantsql","PostgreSQL as a Service","turtle","managed","nodebroker","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=ff9f85a1-3e62-4e2b-b666-727e8ab6d690","2018-08-13T11:27:39","succeeded"
+"Northwest","bkamysz","my-postgres","elephantsql","PostgreSQL as a Service","turtle","managed","nodebroker","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=b4228636-4f5f-4917-9b6a-0ddb7937eb6d","2018-08-13T13:53:22","succeeded"
+"Northwest","bkamysz","my-redis","rediscloud","Enterprise-Class Redis for Developers","30mb","managed","nodebroker","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=8212deee-b357-4de2-961e-505e08d4b0e4","2018-08-14T16:20:29","succeeded"
+"Northwest","bkamysz","my-mongo","mlab","Fully managed MongoDB-as-a-Service","sandbox","managed","nodebroker","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=b3cd69d9-e993-4f3f-b70b-019d302b8c76","2018-08-13T11:45:34","succeeded"
+"Northwest","dkobel","attendee-mysql","cleardb","Highly available MySQL for your Apps.","spark","managed","attendee-service-DGK","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=6988578b-68cc-47d2-bc6e-d2f76bf08d54","2017-06-06T18:59:17","succeeded"
+"Northwest","wlund","rabbit","cloudamqp","Managed HA RabbitMQ servers in the cloud","lemur","managed","pcfdemo","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=d5cc4dba-1ba5-4983-86db-57d469dda2ef","2018-07-19T13:32:15","succeeded"
+"Northwest","dkobel","greeting-db","cleardb","Highly available MySQL for your Apps.","spark","managed","hello-spring-boot-rest","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=bf90d338-317f-4a4f-bf27-f8a35638b2ac",,
+"Northwest","dkobel","CLtest","cloudamqp","Managed HA RabbitMQ servers in the cloud","lemur","managed","pcfdemo","create","https://cloudfoundry.appdirect.com/api/custom/cloudfoundry/v2/sso/start?serviceUuid=6cb10772-ee68-4862-acff-592e49d0c769","2017-06-07T13:45:31","succeeded"
 ...
 ```
 
@@ -239,7 +208,6 @@ Sample `service-inventory-summary.csv`
 ```
 organization,total
 Northwest,40
-zoo-labs,1
 
 service,total
 cleardb,8
@@ -266,7 +234,7 @@ last updated,services total
 > 6 months <= 1 year,14
 > 1 year,0
 
-Total services: 41
+Total services: 40
 ```
 
 ## Credits
