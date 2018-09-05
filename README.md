@@ -32,7 +32,7 @@ git clone https://github.com/pacphi/cf-service-inventory-report.git
 
 Edit the contents of the `application.yml` file located in `src/main/resources`.  You will need to provide administrator credentials to services Manager for the foundation if you want to get a complete inventory of services. 
 
-> You really should not bundle configuration with the application. To take some of the sting away, you might consider externalizing and encrypting this configuration.
+> You really should not bundle configuration with the application. To take some of the sting away, you might consider externalizing and [encrypting](https://blog.novatec-gmbh.de/encrypted-properties-spring/) this configuration.
 
 ### Minimum required keys
 
