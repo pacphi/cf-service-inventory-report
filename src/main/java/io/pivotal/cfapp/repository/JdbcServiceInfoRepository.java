@@ -1,4 +1,4 @@
-package io.pivotal.cfapp.repository.jdbc;
+package io.pivotal.cfapp.repository;
 
 import java.sql.Timestamp;
 

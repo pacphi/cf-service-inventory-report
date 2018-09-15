@@ -1,4 +1,4 @@
-package io.pivotal.cfapp.repository.jdbc;
+package io.pivotal.cfapp.repository;
 
 import java.util.List;
 
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import io.pivotal.cfapp.domain.OrganizationCount;
 import io.pivotal.cfapp.domain.ServiceCount;
-import io.pivotal.cfapp.repository.ServiceDetailAggregator;
 
 @Profile("jdbc")
 @Component

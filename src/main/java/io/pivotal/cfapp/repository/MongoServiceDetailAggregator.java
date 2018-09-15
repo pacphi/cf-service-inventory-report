@@ -1,4 +1,4 @@
-package io.pivotal.cfapp.repository.mongo;
+package io.pivotal.cfapp.repository;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import io.pivotal.cfapp.domain.OrganizationCount;
 import io.pivotal.cfapp.domain.ServiceCount;
 import io.pivotal.cfapp.domain.ServiceDetail;
-import io.pivotal.cfapp.repository.ServiceDetailAggregator;
 
 @Profile("mongo")
 @Component

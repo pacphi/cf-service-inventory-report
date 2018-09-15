@@ -237,6 +237,15 @@ last updated,services total
 Total services: 40
 ```
 
+## On-demand Endpoint
+
+For additional convenenience a REST endpoint has been exposed for on-demand reporting.  Report results are refreshed on the `cron` schedule mentioned above.
+
+```
+GET /report 
+```
+> Produces `text/plain` output combining detail and summary service info
+
 ## Credits
 
 Tip of the hat to those who've gone before...

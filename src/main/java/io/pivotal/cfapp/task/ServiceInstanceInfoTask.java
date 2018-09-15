@@ -13,24 +13,36 @@ import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import io.pivotal.cfapp.domain.ServiceDetail;
 import io.pivotal.cfapp.domain.ServiceRequest;
+import io.pivotal.cfapp.service.ServiceInfoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public abstract class ServiceTask implements ApplicationRunner {
+@Component
+public class ServiceInstanceInfoTask implements ApplicationRunner {
     
+	private static Integer TRUNC_LIMIT = 2500;
     private DefaultCloudFoundryOperations opsClient;
     private ReactorCloudFoundryClient cloudFoundryClient;
+    private ServiceInfoService service;
+    private ApplicationEventPublisher publisher;
     
     @Autowired
-    public ServiceTask(
+    public ServiceInstanceInfoTask(
     		DefaultCloudFoundryOperations opsClient,
-    		ReactorCloudFoundryClient cloudFoundryClient
+    		ReactorCloudFoundryClient cloudFoundryClient,
+    		ServiceInfoService service,
+    		ApplicationEventPublisher publisher
     		) {
         this.opsClient = opsClient;
         this.cloudFoundryClient = cloudFoundryClient;
+        this.service = service;
+        this.publisher = publisher;
     }
 
     @Override
@@ -38,7 +50,29 @@ public abstract class ServiceTask implements ApplicationRunner {
     	runTask();
     }
     
-    protected abstract void runTask();
+    @Scheduled(cron = "${cron}")
+    protected void runTask() {
+        service
+            .deleteAll()
+            .thenMany(getOrganizations())
+            .flatMap(spaceRequest -> getSpaces(spaceRequest))
+            .flatMap(serviceSummaryRequest -> getServiceSummary(serviceSummaryRequest))
+            .flatMap(serviceBoundAppIdsRequest -> getServiceBoundApplicationIds(serviceBoundAppIdsRequest))
+            .flatMap(serviceBoundAppNamesRequest -> getServiceBoundApplicationNames(serviceBoundAppNamesRequest))
+            .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
+            .flatMap(service::save)
+            .collectList()
+            .subscribe(r -> 
+                publisher.publishEvent(
+                    new ServiceInfoRetrievedEvent(
+                            this, 
+                            r, 
+                            service.countServicesByType(),
+                            service.countServicesByOrganization()
+                    )
+                )
+            );
+    }
 
     protected Flux<ServiceRequest> getOrganizations() {
         return DefaultCloudFoundryOperations.builder()
@@ -127,7 +161,7 @@ public abstract class ServiceTask implements ApplicationRunner {
     
     private String toTruncatedString(List<String> urls) {
     	String rawData = String.join(",", urls);
-    	return rawData.length() <= 1000 ? rawData : rawData.substring(0, 1000);  
+    	return rawData.length() <= TRUNC_LIMIT ? rawData : rawData.substring(0, TRUNC_LIMIT);  
     }
     
 }
