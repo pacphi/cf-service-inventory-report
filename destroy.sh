@@ -2,5 +2,9 @@
 
 set -e
 
-cf stop get-service-inventory-task
-cf delete get-service-inventory-task
+export APP_NAME=cf-service-inventory-report
+
+cf stop $APP_NAME
+cf unbind-service $APP_NAME $APP_NAME-secrets
+cf delete-service $APP_NAME-secrets -f
+cf delete $APP_NAME -r -f
