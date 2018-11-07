@@ -23,8 +23,8 @@ private Database database;
     
     public List<ServiceCount> countServicesByType() {
     	return database
-    			.select("SELECT service, COUNT(id) AS total FROM service_detail GROUP BY service")
-    			.get(rs -> new ServiceCount(rs.getString(1), rs.getInt(2)))
+    			.select("SELECT service, plan, COUNT(id) AS total FROM service_detail GROUP BY service, plan")
+    			.get(rs -> new ServiceCount(rs.getString(1), rs.getString(2), rs.getInt(3)))
     			.toList()
     			.blockingGet();
     }

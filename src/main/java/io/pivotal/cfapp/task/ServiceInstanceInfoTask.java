@@ -124,7 +124,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                                    .service(sd.getService())
                                    .plan(sd.getPlan())
                                    .description(sd.getDescription())
-                                   .type(sd.getType() != null ? sd.getType().name().toLowerCase(): "")
+                                   .type(sd.getType() != null ? sd.getType().getValue(): "")
                                    .applications(toTruncatedString(request.getApplicationNames()))
                                    .lastOperation(sd.getLastOperation())
                                    .lastUpdated(StringUtils.isNotBlank(sd.getUpdatedAt()) ? Instant.parse(sd.getUpdatedAt())

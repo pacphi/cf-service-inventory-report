@@ -31,12 +31,12 @@ public class MongoServiceDetailAggregator implements ServiceDetailAggregator {
         this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
     
+    // FIXME Aggregate is possibly broken
     public List<ServiceCount> countServicesByType() {
         Aggregation agg = newAggregation(
-            project("service"),
-            unwind("service"),
-            group("service").count().as("total"),
-            project("total").and("service").previousOperation(),
+            project("service", "plan"),
+            unwind("service", "plan"),
+            group("service", "plan").count().as("total"),
             sort(Sort.Direction.DESC, "total")
         );
         return reactiveMongoTemplate

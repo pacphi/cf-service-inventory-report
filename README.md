@@ -224,21 +224,21 @@ Sample `service-inventory-summary.csv`
 organization,total
 Northwest,40
 
-service,total
-cleardb,8
-cloudamqp,5
-p-config-server,5
-p-service-registry,5
-p-circuit-breaker-dashboard,3
-mlab,2
-rediscloud,2
-service-autoscaler,2
-elephantsql,1
-p-dataflow-relational,1
-p-dataflow-analytics,1
-p-dataflow,1
-p-dataflow-messaging,1
-scheduler-for-pcf,1
+service,plan,total
+cleardb,spark,8
+cloudamqp,little-lemur,5
+p-config-server,trial,5
+p-service-registry,trial,5
+p-circuit-breaker-dashboard,trial,3
+mlab,sandbox,2
+rediscloud,30mb,2
+service-autoscaler,standard,2
+elephantsql,tiny-turtle,1
+p-dataflow-relational,,1
+p-dataflow-analytics,,1
+p-dataflow,,1
+p-dataflow-messaging,,1
+scheduler-for-pcf,standard,1
 
 last updated,services total
 <= 1 day,0
