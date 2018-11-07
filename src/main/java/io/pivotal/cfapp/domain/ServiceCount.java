@@ -13,8 +13,9 @@ public class ServiceCount {
     private String plan;
     private long total;
     
+    // Assumes null vsalues for service are instances of user_provided_service; likewise we'll set plan to default
     public String toCsv() {
-        return String.join(",", service, plan, String.valueOf(total));
+        return String.join(",", service != null ? service: "user_provided_service", plan != null ? plan : "default" , String.valueOf(total));
     }
     
     public static String headers() {
