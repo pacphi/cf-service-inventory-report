@@ -17,16 +17,15 @@ import org.springframework.stereotype.Component;
 public class DatabaseCreator implements ApplicationRunner {
 
 	private final Database database;
-	
+
 	@Autowired
 	public DatabaseCreator(Database database) {
 		this.database = database;
-		
 	}
+
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		try {
-			Connection c = database.connection().blockingGet();
+		try (Connection c = database.connection().blockingGet()) {
             c.setAutoCommit(true);
             c.prepareStatement("create table service_detail ( id int identity primary key, organization varchar(100), space varchar(100), name varchar(100), service varchar(100), description varchar(1000), plan varchar(50), type varchar(30), bound_applications clob(20M), last_operation varchar(50), last_updated timestamp, dashboard_url varchar(250), requested_state varchar(25) )")
             	.execute();
