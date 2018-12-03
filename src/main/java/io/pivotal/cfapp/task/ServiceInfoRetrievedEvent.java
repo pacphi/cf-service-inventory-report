@@ -12,32 +12,39 @@ public class ServiceInfoRetrievedEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private final List<ServiceDetail> detail;
-    private final List<ServiceCount> serviceCounts;
-    private final List<OrganizationCount> organizationCounts;
-    
-    public ServiceInfoRetrievedEvent(
-            Object source, 
-            List<ServiceDetail> detail, 
-            List<ServiceCount> serviceCounts,
-            List<OrganizationCount> organizationCounts
-            ) {
+    private List<ServiceDetail> detail;
+    private List<ServiceCount> serviceCounts;
+    private List<OrganizationCount> organizationCounts;
+
+    public ServiceInfoRetrievedEvent(Object source) {
         super(source);
-        this.detail = detail;
-        this.serviceCounts = serviceCounts;
-        this.organizationCounts = organizationCounts;
     }
-    
+
+    public ServiceInfoRetrievedEvent detail(List<ServiceDetail> detail) {
+        this.detail = detail;
+        return this;
+    }
+
+    public ServiceInfoRetrievedEvent serviceCounts(List<ServiceCount> serviceCounts) {
+        this.serviceCounts = serviceCounts;
+        return this;
+    }
+
+    public ServiceInfoRetrievedEvent organizationCounts(List<OrganizationCount> organizationCounts) {
+        this.organizationCounts = organizationCounts;
+        return this;
+    }
+
     public List<ServiceDetail> getDetail() {
         return detail;
     }
-    
+
     public List<ServiceCount> getServiceCounts() {
         return serviceCounts;
     }
-    
+
     public List<OrganizationCount> getOrganizationCounts() {
         return organizationCounts;
     }
-    
+
 }

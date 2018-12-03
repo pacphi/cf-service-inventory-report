@@ -12,7 +12,7 @@ import io.pivotal.cfapp.task.ServiceInfoRetrievedEvent;
 public class CsvReport {
 
 	private ServiceSettings settings;
-	
+
 	public CsvReport(ServiceSettings settings) {
 		this.settings = settings;
 	}
@@ -26,7 +26,7 @@ public class CsvReport {
         preamble.append(".");
         return preamble.toString();
     }
-    
+
     public String generateDetail(ServiceInfoRetrievedEvent event) {
     	StringBuffer detail = new StringBuffer();
         detail.append("\n");
@@ -39,11 +39,11 @@ public class CsvReport {
                 });
         return detail.toString();
     }
-    
+
     public String generateSummary(ServiceInfoRetrievedEvent event) {
     	ServiceMetrics metrics = new ServiceMetrics(event.getDetail());
         StringBuffer summary = new StringBuffer();
-        
+
         summary.append("\n");
         summary.append(OrganizationCount.headers());
         summary.append("\n");
@@ -51,8 +51,7 @@ public class CsvReport {
             summary.append(r.toCsv());
             summary.append("\n");
         });
-        
-        
+
         summary.append("\n");
         summary.append(ServiceCount.headers());
         summary.append("\n");
@@ -60,7 +59,7 @@ public class CsvReport {
             summary.append(r.toCsv());
             summary.append("\n");
         });
-    
+
         summary.append("\n");
         summary.append(ServiceMetrics.updatedHeaders() + "\n");
         summary.append("<= 1 day," + metrics.updatedInLastDay() + "\n");
@@ -70,7 +69,7 @@ public class CsvReport {
         summary.append("> 3 months <= 6 months," + metrics.updatedInLastSixMonths() + "\n");
         summary.append("> 6 months <= 1 year," + metrics.updatedInLastYear() + "\n");
         summary.append("> 1 year," + metrics.updatedBeyondOneYear() + "\n");
-        
+
         summary.append("\n");
         summary.append("Total services: " + metrics.totalServices());
         return summary.toString();

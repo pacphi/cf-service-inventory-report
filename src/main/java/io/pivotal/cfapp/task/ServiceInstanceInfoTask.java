@@ -25,13 +25,13 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class ServiceInstanceInfoTask implements ApplicationRunner {
-    
+
 	private static Integer TRUNC_LIMIT = 2500;
     private DefaultCloudFoundryOperations opsClient;
     private ReactorCloudFoundryClient cloudFoundryClient;
     private ServiceInfoService service;
     private ApplicationEventPublisher publisher;
-    
+
     @Autowired
     public ServiceInstanceInfoTask(
     		DefaultCloudFoundryOperations opsClient,
@@ -49,7 +49,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
     	runTask();
     }
-    
+
     @Scheduled(cron = "${cron}")
     protected void runTask() {
         service
@@ -62,16 +62,13 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
             .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
             .flatMap(service::save)
             .collectList()
-            .subscribe(r -> 
-                publisher.publishEvent(
-                    new ServiceInfoRetrievedEvent(
-                            this, 
-                            r, 
-                            service.countServicesByType(),
-                            service.countServicesByOrganization()
-                    )
-                )
-            );
+            .subscribe(
+                r -> publisher.publishEvent(
+                    new ServiceInfoRetrievedEvent(this)
+                        .detail(r)
+                        .serviceCounts(service.countServicesByType())
+                        .organizationCounts(service.countServicesByOrganization())
+            ));
     }
 
     protected Flux<ServiceRequest> getOrganizations() {
@@ -82,7 +79,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                     .list()
                     .map(os -> ServiceRequest.builder().organization(os.getName()).build());
     }
-    
+
     protected Flux<ServiceRequest> getSpaces(ServiceRequest request) {
         return DefaultCloudFoundryOperations.builder()
             .from(opsClient)
@@ -92,7 +89,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                     .list()
                     .map(s -> ServiceRequest.from(request).space(s.getName()).build());
     }
-    
+
     protected Flux<ServiceRequest> getServiceSummary(ServiceRequest request) {
         return DefaultCloudFoundryOperations.builder()
             .from(opsClient)
@@ -103,10 +100,10 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                     .listInstances()
                     .map(ss -> ServiceRequest.from(request)
                     							.id(ss.getId())
-                    							.serviceName(ss.getName())
+                    							.serviceName(ss.getName() != null ? ss.getName(): "user_provided_service")
                     							.build());
     }
-    
+
     protected Mono<ServiceDetail> getServiceDetail(ServiceRequest request) {
         return DefaultCloudFoundryOperations.builder()
         	.from(opsClient)
@@ -134,7 +131,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                                    .requestedState(StringUtils.isNotBlank(sd.getUpdatedAt()) ? sd.getStatus().toLowerCase(): "")
                                    .build());
     }
-    
+
     protected Mono<ServiceRequest> getServiceBoundApplicationIds(ServiceRequest request) {
     	return cloudFoundryClient
 			.serviceBindingsV2()
@@ -146,7 +143,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
     		.collectList()
     		.map(i -> ServiceRequest.from(request).applicationIds(i).build());
     }
-    
+
     protected Mono<ServiceRequest> getServiceBoundApplicationNames(ServiceRequest request) {
     	return Flux
     		.fromIterable(request.getApplicationIds())
@@ -158,10 +155,10 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
     					.collectList()
     					.map(n -> ServiceRequest.from(request).applicationNames(n).build());
     }
-    
+
     private String toTruncatedString(List<String> urls) {
     	String rawData = String.join(",", urls);
-    	return rawData.length() <= TRUNC_LIMIT ? rawData : rawData.substring(0, TRUNC_LIMIT);  
+    	return rawData.length() <= TRUNC_LIMIT ? rawData : rawData.substring(0, TRUNC_LIMIT);
     }
-    
+
 }

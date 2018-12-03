@@ -6,8 +6,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.proj
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -30,22 +30,24 @@ public class MongoServiceDetailAggregator implements ServiceDetailAggregator {
     public MongoServiceDetailAggregator(ReactiveMongoTemplate reactiveMongoTemplate) {
         this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
-    
+
     // FIXME Aggregate is possibly broken
     public List<ServiceCount> countServicesByType() {
+        List<ServiceCount> result = new ArrayList<>();
         Aggregation agg = newAggregation(
             project("service", "plan"),
             unwind("service", "plan"),
             group("service", "plan").count().as("total"),
             sort(Sort.Direction.DESC, "total")
         );
-        return reactiveMongoTemplate
+        reactiveMongoTemplate
                 .aggregate(agg, ServiceDetail.class, ServiceCount.class)
-                    .toStream()
-                        .collect(Collectors.toList());
+                .subscribe(result::add);
+        return result;
     }
-    
+
     public List<OrganizationCount> countServicesByOrganization() {
+        List<OrganizationCount> result = new ArrayList<>();
         Aggregation agg = newAggregation(
             project("organization"),
             unwind("organization"),
@@ -53,10 +55,11 @@ public class MongoServiceDetailAggregator implements ServiceDetailAggregator {
             project("total").and("organization").previousOperation(),
             sort(Sort.Direction.DESC, "total")
         );
-        return reactiveMongoTemplate
+        reactiveMongoTemplate
                 .aggregate(agg, ServiceDetail.class, OrganizationCount.class)
-                    .toStream()
-                        .collect(Collectors.toList());
+                .subscribe(result::add);
+        return result;
+        
     }
-    
+
 }

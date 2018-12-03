@@ -15,14 +15,14 @@ import reactor.core.publisher.Mono;
 @Profile("jdbc")
 @Repository
 public class JdbcServiceInfoRepository {
-	
+
 	private Database database;
-	
+
 	@Autowired
 	public JdbcServiceInfoRepository(Database database) {
 		this.database = database;
 	}
-	
+
 	public Mono<ServiceDetail> save(ServiceDetail entity) {
 		String createOne = "insert into service_detail (organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		Flowable<Integer> insert = database
@@ -43,7 +43,7 @@ public class JdbcServiceInfoRepository {
 			)
 			.returnGeneratedKeys()
 			.getAs(Integer.class);
-		
+
 		String selectOne = "select id, organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state from service_detail where id = ?";
 		Flowable<ServiceDetail> result = database
 			.select(selectOne)

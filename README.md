@@ -2,25 +2,25 @@
 
 [![Build Status](https://travis-ci.org/pacphi/cf-service-inventory-report.svg?branch=app-deploy)](https://travis-ci.org/pacphi/cf-service-inventory-report) [![Known Vulnerabilities](https://snyk.io/test/github/pacphi/cf-service-inventory-report/badge.svg)](https://snyk.io/test/github/pacphi/cf-service-inventory-report)
 
-This is a Spring Boot application that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [HSQL](http://www.hsqldb.org) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  An email will be sent to recipient(s) with those reports attached. 
+This is a Spring Boot application that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [HSQL](http://www.hsqldb.org) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  An email will be sent to recipient(s) with those reports attached.
 
 ## Prerequisites
 
 Required
 
-* [Pivotal Application Service](https://pivotal.io/platform/pivotal-application-service) account 
+* [Pivotal Application Service](https://pivotal.io/platform/pivotal-application-service) account
 
 Optional
 
 * Email account
 * SMTP Host
-* [SendGrid](https://sendgrid.com/pricing/) account 
+* [SendGrid](https://sendgrid.com/pricing/) account
 
 ## Tools
 
-* [git](https://git-scm.com/downloads) 2.17.1 or better
-* [JDK](http://openjdk.java.net/install/) 8u162 or better
-* [cf](https://docs.cloudfoundry.org/cf-cli/install-go-cli.html) CLI 6.37.0 or better
+* [git](https://git-scm.com/downloads) 2.19.2 or better
+* [JDK](http://openjdk.java.net/install/) 11 or better
+* [cf](https://docs.cloudfoundry.org/cf-cli/install-go-cli.html) CLI 6.40.0 or better
 
 ## Clone
 

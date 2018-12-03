@@ -16,7 +16,7 @@ public class ServiceInfoController {
 
 	private ServiceInfoService service;
 	private CsvReport report;
-	
+
 	@Autowired
 	public ServiceInfoController(
 			ServiceSettings appSettings,
@@ -24,25 +24,22 @@ public class ServiceInfoController {
 		this.report = new CsvReport(appSettings);
 		this.service = service;
 	}
-	
+
 	@GetMapping(value = { "/report" }, produces = MediaType.TEXT_PLAIN_VALUE )
 	public Mono<String> generateReport() {
 		return service
 				.findAll()
 				.collectList()
-		        .map(r ->
-	                new ServiceInfoRetrievedEvent(
-                        this, 
-                        r, 
-                        service.countServicesByType(),
-                        service.countServicesByOrganization()
-	                )
+		        .map(r -> new ServiceInfoRetrievedEvent(this)
+							.detail(r)
+							.serviceCounts(service.countServicesByType())
+							.organizationCounts(service.countServicesByOrganization())
 		        )
-		        .map(event -> 
+		        .map(event ->
 		        	String.join(
-		        			"\n\n", 
-		        			report.generatePreamble(), 
-		        			report.generateDetail(event), 
+		        			"\n\n",
+		        			report.generatePreamble(),
+		        			report.generateDetail(event),
 		        			report.generateSummary(event)));
 	}
 

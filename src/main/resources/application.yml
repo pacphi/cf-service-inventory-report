@@ -51,13 +51,13 @@ logging:
     org.springframework: INFO
     com.sendgrid: DEBUG
 
-# Options are: none, java-mail or sendgrid    
+# Options are: none, java-mail or sendgrid
 notification:
   engine: none
-  
+
 # Set schedule for this task to adhere to
 # @see https://crontab.guru for help, first parameter is seconds
-cron: "0 * * * * *"
+cron: "0 0 8 * * 1"
 
 management:
   endpoints:
@@ -68,22 +68,22 @@ management:
 ---
 spring:
   profiles: mongo
-  
+
   autoconfigure:
     exclude:
     - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-    
+
   mongodb:
     embedded:
       version: 3.4.15
       download:
         path: https://fastdl.mongodb.org/
         alternate: true
-        
+
 ---
 spring:
   profiles: jdbc
-  
+
   autoconfigure:
     exclude:
     - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
@@ -91,7 +91,7 @@ spring:
     - org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration
     - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
     - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
-    
+
   datasource:
     driver-class-name: org.hsqldb.jdbc.JDBCDriver
     url: jdbc:hsqldb:mem:cf-service-inventory
@@ -105,24 +105,24 @@ spring:
   profiles: secrets
   profiles.include: 
   - jdbc
-  
+
   credhub:
     url: https://credhub.service.cf.internal:8844
-    
+
   mail:
     host: ${vcap.services.cf-service-inventory-report-secrets.credentials.MAIL_HOST:}
     port: ${vcap.services.cf-service-inventory-report-secrets.credentials.MAIL_PORT:}
     username: ${vcap.services.cf-service-inventory-report-secrets.credentials.MAIL_USERNAME:}
     password: ${vcap.services.cf-service-inventory-report-secrets.credentials.MAIL_PASSWORD:}
-    
+
   sendgrid:
     api-key: ${vcap.services.cf-service-inventory-report-secrets.credentials.SENDGRID_API-KEY:}
-    
+
 cf:
   apiHost: ${vcap.services.cf-service-inventory-report-secrets.credentials.CF_API-HOST:api.run.pcfone.io}
   username: ${vcap.services.cf-service-inventory-report-secrets.credentials.CF_USERNAME}
   password: ${vcap.services.cf-service-inventory-report-secrets.credentials.CF_PASSWORD}
-  
+
 mail:
   from: ${vcap.services.cf-service-inventory-report-secrets.credentials.MAIL_FROM:admin@pcfone.io}
   recipients: ${vcap.services.cf-service-inventory-report-secrets.credentials.MAIL_RECIPIENTS:}

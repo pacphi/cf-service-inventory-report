@@ -26,7 +26,7 @@ public class JdbcServiceInfoService implements ServiceInfoService {
 		this.repo = repo;
 		this.aggregator = aggregator;
 	}
-	
+
 	@Override
 	public Mono<ServiceDetail> save(ServiceDetail entity) {
 		return repo.save(entity);

@@ -9,5 +9,5 @@ public interface ServiceDetailAggregator {
 
     public List<ServiceCount> countServicesByType();
     public List<OrganizationCount> countServicesByOrganization();
-    
+
 }

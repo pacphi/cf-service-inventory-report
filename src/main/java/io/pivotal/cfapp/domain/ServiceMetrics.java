@@ -8,21 +8,21 @@ import java.util.stream.Collectors;
 public class ServiceMetrics {
 
     private static LocalDate NOW = LocalDate.now();
-    
+
     private List<ServiceDetail> detail;
-    
+
     public ServiceMetrics(List<ServiceDetail> detail) {
         this.detail = detail;
     }
-    
+
     public static String updatedHeaders() {
         return "last updated,services total";
     }
-    
+
     public Integer totalServices() {
         return detail.size();
     }
-    
+
     public Integer updatedInLastDay() {
         return detail
                 .stream()
@@ -33,7 +33,7 @@ public class ServiceMetrics {
                     .collect(Collectors.toList())
                     .size();
     }
-    
+
     public Integer updatedInLastWeek() {
         return detail
                 .stream()
@@ -45,7 +45,7 @@ public class ServiceMetrics {
                     .collect(Collectors.toList())
                     .size();
     }
-    
+
     public Integer updatedInLastMonth() {
         return detail
                 .stream()
@@ -57,7 +57,7 @@ public class ServiceMetrics {
                     .collect(Collectors.toList())
                     .size();
     }
-    
+
     public Integer updatedInLastThreeMonths() {
         return detail
                 .stream()
@@ -69,7 +69,7 @@ public class ServiceMetrics {
                     .collect(Collectors.toList())
                     .size();
     }
-    
+
     public Integer updatedInLastSixMonths() {
         return detail
                 .stream()
@@ -81,7 +81,7 @@ public class ServiceMetrics {
                     .collect(Collectors.toList())
                     .size();
     }
-    
+
     public Integer updatedInLastYear() {
         return detail
                 .stream()
@@ -93,7 +93,7 @@ public class ServiceMetrics {
                     .collect(Collectors.toList())
                     .size();
     }
-    
+
     public Integer updatedBeyondOneYear() {
         return detail
                 .stream()
