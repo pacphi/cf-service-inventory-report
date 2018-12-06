@@ -1,7 +1,10 @@
 package io.pivotal.cfapp.controller;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +29,7 @@ public class ServiceInfoController {
 	}
 
 	@GetMapping(value = { "/report" }, produces = MediaType.TEXT_PLAIN_VALUE )
-	public Mono<String> generateReport() {
+	public Mono<ResponseEntity<String>> generateReport() {
 		return service
 				.findAll()
 				.collectList()
@@ -34,13 +37,14 @@ public class ServiceInfoController {
 							.detail(r)
 							.serviceCounts(service.countServicesByType())
 							.organizationCounts(service.countServicesByOrganization())
-		        )
-		        .map(event ->
+				)
+				.delayElement(Duration.ofMillis(500))
+		        .map(event -> ResponseEntity.ok(
 		        	String.join(
 		        			"\n\n",
 		        			report.generatePreamble(),
 		        			report.generateDetail(event),
-		        			report.generateSummary(event)));
+		        			report.generateSummary(event))));
 	}
 
 }

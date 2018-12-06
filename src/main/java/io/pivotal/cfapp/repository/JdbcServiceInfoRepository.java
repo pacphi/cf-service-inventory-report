@@ -68,7 +68,7 @@ public class JdbcServiceInfoRepository {
 	}
 
 	public Flux<ServiceDetail> findAll() {
-		String selectAll = "select id, organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state from service_detail";
+		String selectAll = "select id, organization, space, name, service, description, plan, type, bound_applications, last_operation, last_updated, dashboard_url, requested_state from service_detail order by organization, space, service, name";
 		Flowable<ServiceDetail> result = database
 			.select(selectAll)
 			.get(rs -> ServiceDetail
