@@ -9,9 +9,9 @@ public class ServiceMetrics {
 
     private static LocalDate NOW = LocalDate.now();
 
-    private List<ServiceDetail> detail;
+    private List<ServiceInstanceDetail> detail;
 
-    public ServiceMetrics(List<ServiceDetail> detail) {
+    public ServiceMetrics(List<ServiceInstanceDetail> detail) {
         this.detail = detail;
     }
 

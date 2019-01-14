@@ -1,6 +1,7 @@
 package io.pivotal.cfapp.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
@@ -19,33 +20,35 @@ import lombok.ToString;
 @AllArgsConstructor(access=AccessLevel.PACKAGE)
 @NoArgsConstructor(access=AccessLevel.PACKAGE)
 @ToString
-public class ServiceDetail {
+public class ServiceInstanceDetail {
     
     @Id
     private String id;
     private String organization;
     private String space;
+    private String serviceId;
     private String name;
     private String service;
     private String description;
     private String plan;
     private String type;
-    private String applications;
+    private List<String> applications;
     private String lastOperation;
     private LocalDateTime lastUpdated;
     private String dashboardUrl;
     private String requestedState;
     
     public static String headers() {
-        return String.join(",", "organization", "space", 
+        return String.join(",", "organization", "space", "service id",
                 "name", "service", "description", "plan", "type", "bound applications", "last operation", "last updated", "dashboard url", "requested state");
     }
     
-    public static ServiceDetailBuilder from(ServiceDetail detail) {
-        return ServiceDetail.builder()
+    public static ServiceInstanceDetailBuilder from(ServiceInstanceDetail detail) {
+        return ServiceInstanceDetail.builder()
                             .id(detail.getId())
                             .organization(detail.getOrganization())
                             .space(detail.getSpace())
+                            .serviceId(detail.getServiceId())
                             .name(detail.getName())
                             .service(detail.getService())
                             .description(detail.getDescription())
@@ -61,9 +64,9 @@ public class ServiceDetail {
     public String toCsv() {
         return String
                 .join(",", wrap(getOrganization()), wrap(getSpace()), 
-                        wrap(getName()), wrap(getService()),
+                        wrap(getServiceId()), wrap(getName()), wrap(getService()),
                         wrap(getDescription()),
-                        wrap(getPlan()), wrap(getType()), wrap(StringUtils.join(getApplications())),
+                        wrap(getPlan()), wrap(getType()), wrap(String.join(",", getApplications())),
                         wrap(getLastOperation()), 
                         wrap(getLastUpdated() != null ? getLastUpdated().toString(): ""),
                         wrap(getDashboardUrl()), wrap(getRequestedState()));

@@ -18,16 +18,16 @@ import org.springframework.stereotype.Component;
 
 import io.pivotal.cfapp.domain.OrganizationCount;
 import io.pivotal.cfapp.domain.ServiceCount;
-import io.pivotal.cfapp.domain.ServiceDetail;
+import io.pivotal.cfapp.domain.ServiceInstanceDetail;
 
 @Profile("mongo")
 @Component
-public class MongoServiceDetailAggregator implements ServiceDetailAggregator {
+public class MongoServiceInstanceDetailAggregator implements ServiceInstanceDetailAggregator {
 
     private ReactiveMongoTemplate reactiveMongoTemplate;
 
     @Autowired
-    public MongoServiceDetailAggregator(ReactiveMongoTemplate reactiveMongoTemplate) {
+    public MongoServiceInstanceDetailAggregator(ReactiveMongoTemplate reactiveMongoTemplate) {
         this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
 
@@ -41,7 +41,7 @@ public class MongoServiceDetailAggregator implements ServiceDetailAggregator {
             sort(Sort.Direction.DESC, "total")
         );
         reactiveMongoTemplate
-                .aggregate(agg, ServiceDetail.class, ServiceCount.class)
+                .aggregate(agg, ServiceInstanceDetail.class, ServiceCount.class)
                 .subscribe(result::add);
         return result;
     }
@@ -56,7 +56,7 @@ public class MongoServiceDetailAggregator implements ServiceDetailAggregator {
             sort(Sort.Direction.DESC, "total")
         );
         reactiveMongoTemplate
-                .aggregate(agg, ServiceDetail.class, OrganizationCount.class)
+                .aggregate(agg, ServiceInstanceDetail.class, OrganizationCount.class)
                 .subscribe(result::add);
         return result;
         

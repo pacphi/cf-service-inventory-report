@@ -15,12 +15,12 @@ import reactor.core.publisher.Flux;
 
 @Profile("jdbc")
 @Component
-public class JdbcServiceDetailAggregator implements ServiceDetailAggregator {
+public class JdbcServiceInstanceDetailAggregator implements ServiceInstanceDetailAggregator {
 
 private Database database;
 
 	@Autowired
-	public JdbcServiceDetailAggregator(Database database) {
+	public JdbcServiceInstanceDetailAggregator(Database database) {
 		this.database = database;
 	}
 

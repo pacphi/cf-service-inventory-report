@@ -6,6 +6,7 @@ import org.cloudfoundry.reactor.DefaultConnectionContext;
 import org.cloudfoundry.reactor.TokenProvider;
 import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.cloudfoundry.reactor.doppler.ReactorDopplerClient;
+import org.cloudfoundry.reactor.tokenprovider.OneTimePasscodeTokenProvider;
 import org.cloudfoundry.reactor.tokenprovider.PasswordGrantTokenProvider;
 import org.cloudfoundry.reactor.uaa.ReactorUaaClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,13 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.sendgrid.SendGrid;
-
-import io.pivotal.cfapp.notifier.JavaMailNotifier;
-import io.pivotal.cfapp.notifier.SendGridNotifier;
 
 @EnableScheduling
 @Configuration
@@ -30,14 +25,24 @@ public class ServiceConfig {
     DefaultConnectionContext connectionContext(ServiceSettings settings) {
         return DefaultConnectionContext.builder()
             .apiHost(settings.getApiHost())
+            .skipSslValidation(settings.isSslValidationSkipped())
             .build();
     }
 
     @Bean
-    PasswordGrantTokenProvider tokenProvider(ServiceSettings settings) {
+    @ConditionalOnProperty(prefix="token", name="provider", havingValue="userpass", matchIfMissing=true)
+    TokenProvider tokenProvider(ServiceSettings settings) {
         return PasswordGrantTokenProvider.builder()
             .username(settings.getUsername())
             .password(settings.getPassword())
+            .build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix="token", name="provider", havingValue="sso")
+    TokenProvider onetTimeTokenProvider(ServiceSettings settings) {
+        return OneTimePasscodeTokenProvider.builder()
+            .passcode(settings.getPasscode())
             .build();
     }
 
@@ -83,18 +88,5 @@ public class ServiceConfig {
         eventMulticaster.setTaskExecutor(new SimpleAsyncTaskExecutor());
         return eventMulticaster;
     }
-    
-    @Bean
-    @ConditionalOnProperty(prefix="notification", name="engine", havingValue="java-mail")
-    public JavaMailNotifier javaMailNotifier(
-            ServiceSettings serviceSettings, MailSettings mailSettings, JavaMailSender javaMailSender) {
-        return new JavaMailNotifier(serviceSettings, mailSettings, javaMailSender);
-    }
-    
-    @Bean
-    @ConditionalOnProperty(prefix="notification", name="engine", havingValue="sendgrid")
-    public SendGridNotifier sendGridNotifier(
-            ServiceSettings serviceSettings, MailSettings mailSettings, SendGrid sendGrid) {
-        return new SendGridNotifier(serviceSettings, mailSettings, sendGrid);
-    }
+
 }

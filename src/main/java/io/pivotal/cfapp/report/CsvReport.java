@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import io.pivotal.cfapp.config.ServiceSettings;
 import io.pivotal.cfapp.domain.OrganizationCount;
 import io.pivotal.cfapp.domain.ServiceCount;
-import io.pivotal.cfapp.domain.ServiceDetail;
+import io.pivotal.cfapp.domain.ServiceInstanceDetail;
 import io.pivotal.cfapp.domain.ServiceMetrics;
-import io.pivotal.cfapp.task.ServiceInfoRetrievedEvent;
+import io.pivotal.cfapp.task.ServiceInstanceDetailRetrievedEvent;
 
 public class CsvReport {
 
@@ -19,7 +19,7 @@ public class CsvReport {
 
     public String generatePreamble() {
     	StringBuffer preamble = new StringBuffer();
-        preamble.append("Please find attached service inventory detail and summary reports from ");
+        preamble.append("Please find attached service instance inventory detail and summary reports from ");
         preamble.append(settings.getApiHost());
         preamble.append(" generated ");
         preamble.append(LocalDateTime.now());
@@ -27,10 +27,10 @@ public class CsvReport {
         return preamble.toString();
     }
 
-    public String generateDetail(ServiceInfoRetrievedEvent event) {
+    public String generateDetail(ServiceInstanceDetailRetrievedEvent event) {
     	StringBuffer detail = new StringBuffer();
         detail.append("\n");
-        detail.append(ServiceDetail.headers());
+        detail.append(ServiceInstanceDetail.headers());
         detail.append("\n");
         event.getDetail()
                 .forEach(a -> { 
@@ -40,7 +40,7 @@ public class CsvReport {
         return detail.toString();
     }
 
-    public String generateSummary(ServiceInfoRetrievedEvent event) {
+    public String generateSummary(ServiceInstanceDetailRetrievedEvent event) {
     	ServiceMetrics metrics = new ServiceMetrics(event.getDetail());
         StringBuffer summary = new StringBuffer();
 

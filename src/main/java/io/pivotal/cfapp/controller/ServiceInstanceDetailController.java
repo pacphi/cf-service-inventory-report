@@ -10,20 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.pivotal.cfapp.config.ServiceSettings;
 import io.pivotal.cfapp.report.CsvReport;
-import io.pivotal.cfapp.service.ServiceInfoService;
-import io.pivotal.cfapp.task.ServiceInfoRetrievedEvent;
+import io.pivotal.cfapp.service.ServiceInstanceDetailService;
+import io.pivotal.cfapp.task.ServiceInstanceDetailRetrievedEvent;
 import reactor.core.publisher.Mono;
 
 @RestController
-public class ServiceInfoController {
+public class ServiceInstanceDetailController {
 
-	private ServiceInfoService service;
+	private ServiceInstanceDetailService service;
 	private CsvReport report;
 
 	@Autowired
-	public ServiceInfoController(
+	public ServiceInstanceDetailController(
 			ServiceSettings appSettings,
-			ServiceInfoService service) {
+			ServiceInstanceDetailService service) {
 		this.report = new CsvReport(appSettings);
 		this.service = service;
 	}
@@ -33,7 +33,7 @@ public class ServiceInfoController {
 		return service
 				.findAll()
 				.collectList()
-		        .map(r -> new ServiceInfoRetrievedEvent(this)
+		        .map(r -> new ServiceInstanceDetailRetrievedEvent(this)
 							.detail(r)
 							.serviceCounts(service.countServicesByType())
 							.organizationCounts(service.countServicesByOrganization())

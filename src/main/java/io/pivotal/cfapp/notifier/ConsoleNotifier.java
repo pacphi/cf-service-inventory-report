@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 
 import io.pivotal.cfapp.config.ServiceSettings;
 import io.pivotal.cfapp.report.CsvReport;
-import io.pivotal.cfapp.task.ServiceInfoRetrievedEvent;
+import io.pivotal.cfapp.task.ServiceInstanceDetailRetrievedEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class ConsoleNotifier implements ApplicationListener<ServiceInfoRetrievedEvent> {
+public class ConsoleNotifier implements ApplicationListener<ServiceInstanceDetailRetrievedEvent> {
 
 	private final CsvReport report;
 	
@@ -21,7 +21,7 @@ public class ConsoleNotifier implements ApplicationListener<ServiceInfoRetrieved
     }
 
 	@Override
-	public void onApplicationEvent(ServiceInfoRetrievedEvent event) {
+	public void onApplicationEvent(ServiceInstanceDetailRetrievedEvent event) {
 		log.info(String.join("\n\n", report.generatePreamble(), report.generateDetail(event), report.generateSummary(event)));
 	}
   

@@ -11,7 +11,9 @@ import lombok.Data;
 public class ServiceSettings {
 
     private String apiHost;
+    private boolean sslValidationSkipped;
     private String username;
     private String password;
+    private String passcode;
 
 }

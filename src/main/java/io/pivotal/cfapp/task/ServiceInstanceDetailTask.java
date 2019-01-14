@@ -2,7 +2,6 @@ package io.pivotal.cfapp.task;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v2.servicebindings.ListServiceBindingsRequest;
@@ -17,26 +16,26 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import io.pivotal.cfapp.domain.ServiceDetail;
+import io.pivotal.cfapp.domain.ServiceInstanceDetail;
 import io.pivotal.cfapp.domain.ServiceRequest;
-import io.pivotal.cfapp.service.ServiceInfoService;
+import io.pivotal.cfapp.service.ServiceInstanceDetailService;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 
 @Component
-public class ServiceInstanceInfoTask implements ApplicationRunner {
+public class ServiceInstanceDetailTask implements ApplicationRunner {
 
-	private static Integer TRUNC_LIMIT = 2500;
     private DefaultCloudFoundryOperations opsClient;
     private ReactorCloudFoundryClient cloudFoundryClient;
-    private ServiceInfoService service;
+    private ServiceInstanceDetailService service;
     private ApplicationEventPublisher publisher;
 
     @Autowired
-    public ServiceInstanceInfoTask(
+    public ServiceInstanceDetailTask(
     		DefaultCloudFoundryOperations opsClient,
     		ReactorCloudFoundryClient cloudFoundryClient,
-    		ServiceInfoService service,
+    		ServiceInstanceDetailService service,
     		ApplicationEventPublisher publisher
     		) {
         this.opsClient = opsClient;
@@ -47,28 +46,31 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-    	// do nothing; cron managed
+    	collect();
+    }
+    
+    public void collect() {
+    	Hooks.onOperatorDebug();
+    	service
+	        .deleteAll()
+	        .thenMany(getOrganizations())
+	        .flatMap(spaceRequest -> getSpaces(spaceRequest))
+	        .flatMap(serviceSummaryRequest -> getServiceSummary(serviceSummaryRequest))
+	        .flatMap(serviceBoundAppIdsRequest -> getServiceBoundApplicationIds(serviceBoundAppIdsRequest))
+	        .flatMap(serviceBoundAppNamesRequest -> getServiceBoundApplicationNames(serviceBoundAppNamesRequest))
+	        .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
+	        .flatMap(service::save)
+	        .collectList()
+	        .subscribe(
+	            r -> publisher.publishEvent(
+	                new ServiceInstanceDetailRetrievedEvent(this)
+	                    .detail(r)
+        ));
     }
 
     @Scheduled(cron = "${cron}")
     protected void runTask() {
-        service
-            .deleteAll()
-            .thenMany(getOrganizations())
-            .flatMap(spaceRequest -> getSpaces(spaceRequest))
-            .flatMap(serviceSummaryRequest -> getServiceSummary(serviceSummaryRequest))
-            .flatMap(serviceBoundAppIdsRequest -> getServiceBoundApplicationIds(serviceBoundAppIdsRequest))
-            .flatMap(serviceBoundAppNamesRequest -> getServiceBoundApplicationNames(serviceBoundAppNamesRequest))
-            .flatMap(serviceDetailRequest -> getServiceDetail(serviceDetailRequest))
-            .flatMap(service::save)
-            .collectList()
-            .subscribe(
-                r -> publisher.publishEvent(
-                    new ServiceInfoRetrievedEvent(this)
-                        .detail(r)
-                        .serviceCounts(service.countServicesByType())
-                        .organizationCounts(service.countServicesByOrganization())
-            ));
+        collect();
     }
 
     protected Flux<ServiceRequest> getOrganizations() {
@@ -104,7 +106,7 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                     							.build());
     }
 
-    protected Mono<ServiceDetail> getServiceDetail(ServiceRequest request) {
+    protected Mono<ServiceInstanceDetail> getServiceDetail(ServiceRequest request) {
         return DefaultCloudFoundryOperations.builder()
         	.from(opsClient)
         	.organization(request.getOrganization())
@@ -113,16 +115,17 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
                .services()
                    .getInstance(GetServiceInstanceRequest.builder().name(request.getServiceName()).build())
                    .onErrorResume(e -> Mono.empty())
-                   .map(sd -> ServiceDetail
+                   .map(sd -> ServiceInstanceDetail
                                .builder()
                                    .organization(request.getOrganization())
                                    .space(request.getSpace())
+                                   .serviceId(request.getId())
                                    .name(request.getServiceName())
                                    .service(sd.getService())
                                    .plan(sd.getPlan())
                                    .description(sd.getDescription())
                                    .type(sd.getType() != null ? sd.getType().getValue(): "")
-                                   .applications(toTruncatedString(request.getApplicationNames()))
+                                   .applications(request.getApplicationNames())
                                    .lastOperation(sd.getLastOperation())
                                    .lastUpdated(StringUtils.isNotBlank(sd.getUpdatedAt()) ? Instant.parse(sd.getUpdatedAt())
                                                .atZone(ZoneId.systemDefault())
@@ -154,11 +157,6 @@ public class ServiceInstanceInfoTask implements ApplicationRunner {
     					.map(response -> response.getName()))
     					.collectList()
     					.map(n -> ServiceRequest.from(request).applicationNames(n).build());
-    }
-
-    private String toTruncatedString(List<String> urls) {
-    	String rawData = String.join(",", urls);
-    	return rawData.length() <= TRUNC_LIMIT ? rawData : rawData.substring(0, TRUNC_LIMIT);
     }
 
 }

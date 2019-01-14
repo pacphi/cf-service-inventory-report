@@ -7,33 +7,33 @@ import org.springframework.stereotype.Service;
 
 import io.pivotal.cfapp.domain.OrganizationCount;
 import io.pivotal.cfapp.domain.ServiceCount;
-import io.pivotal.cfapp.domain.ServiceDetail;
-import io.pivotal.cfapp.repository.JdbcServiceDetailAggregator;
-import io.pivotal.cfapp.repository.JdbcServiceInfoRepository;
+import io.pivotal.cfapp.domain.ServiceInstanceDetail;
+import io.pivotal.cfapp.repository.JdbcServiceInstanceDetailAggregator;
+import io.pivotal.cfapp.repository.JdbcServiceInstanceDetailRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Profile("jdbc")
 @Service
-public class JdbcServiceInfoService implements ServiceInfoService {
+public class JdbcServiceInstanceDetailService implements ServiceInstanceDetailService {
 
-	private JdbcServiceInfoRepository repo;
-	private JdbcServiceDetailAggregator aggregator;
+	private JdbcServiceInstanceDetailRepository repo;
+	private JdbcServiceInstanceDetailAggregator aggregator;
 
-	public JdbcServiceInfoService(
-			JdbcServiceInfoRepository repo,
-			JdbcServiceDetailAggregator aggregator) {
+	public JdbcServiceInstanceDetailService(
+			JdbcServiceInstanceDetailRepository repo,
+			JdbcServiceInstanceDetailAggregator aggregator) {
 		this.repo = repo;
 		this.aggregator = aggregator;
 	}
 
 	@Override
-	public Mono<ServiceDetail> save(ServiceDetail entity) {
+	public Mono<ServiceInstanceDetail> save(ServiceInstanceDetail entity) {
 		return repo.save(entity);
 	}
 
 	@Override
-	public Flux<ServiceDetail> findAll() {
+	public Flux<ServiceInstanceDetail> findAll() {
 		return repo.findAll();
 	}
 

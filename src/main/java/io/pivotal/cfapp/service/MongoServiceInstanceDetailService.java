@@ -7,33 +7,33 @@ import org.springframework.stereotype.Service;
 
 import io.pivotal.cfapp.domain.OrganizationCount;
 import io.pivotal.cfapp.domain.ServiceCount;
-import io.pivotal.cfapp.domain.ServiceDetail;
-import io.pivotal.cfapp.repository.MongoServiceDetailAggregator;
-import io.pivotal.cfapp.repository.MongoServiceInfoRepository;
+import io.pivotal.cfapp.domain.ServiceInstanceDetail;
+import io.pivotal.cfapp.repository.MongoServiceInstanceDetailAggregator;
+import io.pivotal.cfapp.repository.MongoServiceInstanceDetailRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Profile("mongo")
 @Service
-public class MongoServiceInfoService implements ServiceInfoService {
+public class MongoServiceInstanceDetailService implements ServiceInstanceDetailService {
 
-	private MongoServiceInfoRepository repo;
-	private MongoServiceDetailAggregator aggregator;
+	private MongoServiceInstanceDetailRepository repo;
+	private MongoServiceInstanceDetailAggregator aggregator;
 
-	public MongoServiceInfoService(
-			MongoServiceInfoRepository repo,
-			MongoServiceDetailAggregator aggregator) {
+	public MongoServiceInstanceDetailService(
+			MongoServiceInstanceDetailRepository repo,
+			MongoServiceInstanceDetailAggregator aggregator) {
 		this.repo = repo;
 		this.aggregator = aggregator;
 	}
 
 	@Override
-	public Mono<ServiceDetail> save(ServiceDetail entity) {
+	public Mono<ServiceInstanceDetail> save(ServiceInstanceDetail entity) {
 		return repo.save(entity);
 	}
 
 	@Override
-	public Flux<ServiceDetail> findAll() {
+	public Flux<ServiceInstanceDetail> findAll() {
 		return repo.findAll();
 	}
 
