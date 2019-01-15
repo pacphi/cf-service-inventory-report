@@ -65,6 +65,8 @@ public class ServiceInstanceDetailTask implements ApplicationRunner {
 	            r -> publisher.publishEvent(
 	                new ServiceInstanceDetailRetrievedEvent(this)
 	                    .detail(r)
+	                    .serviceCounts(service.countServicesByType())
+                        .organizationCounts(service.countServicesByOrganization())
         ));
     }
 
