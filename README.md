@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/pacphi/cf-service-inventory-report.svg?branch=master)](https://travis-ci.org/pacphi/cf-service-inventory-report) [![Known Vulnerabilities](https://snyk.io/test/github/pacphi/cf-service-inventory-report/badge.svg)](https://snyk.io/test/github/pacphi/cf-service-inventory-report)
 
-This is a Spring Boot application that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [HSQL](http://www.hsqldb.org) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  An email will be sent to recipient(s) with those reports attached.
+This is a Spring Boot application that employs the Reactive support in both the [Pivotal Application Service Java Client](https://github.com/cloudfoundry/cf-java-client) and your choice of either [Spring Boot Starter Data Mongodb](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.reactive) or [rxjava2-jdbc](https://github.com/davidmoten/rxjava2-jdbc) with an [HSQL](http://www.hsqldb.org) backend.  These libraries are employed to generate custom service inventory detail and summary reports from a target foundation.  It may optionally be configured to send an email to recipient(s) with those reports attached.
+
+> While the cf-service-inventory-report does not take the place of an official foundation [Accounting Report](https://docs.pivotal.io/pivotalcf/2-4/opsguide/accounting-report-apps-man.html), it does provide a much more detailed snapshot of all the service instances that were currently running at the time of collection.  The Accounting Report is focussed on calculating aggregates (on a monthly basis by service type) such as: (a) the total hours of service instance usage and (b) the largest # of service instances running (a.k.a. maximum concurrent service instances).
 
 ## Prerequisites
 
